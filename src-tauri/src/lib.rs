@@ -23,6 +23,7 @@ static OUTPUT_CHANNELS: Lazy<Mutex<Option<(Receiver<String>, Receiver<String>)>>
 /// stores receivers for both stdout and stderr in a global so the
 /// output can be retrieved later without providing any arguments.
 fn test(current_dir: &PathBuf) {
+
     let mut child = Command::new(current_dir)
         .args(["--flag", "value"])
         .stdout(Stdio::piped())
@@ -38,6 +39,7 @@ fn test(current_dir: &PathBuf) {
 
     // Make receivers available to `read_available`.
     *OUTPUT_CHANNELS.lock().unwrap() = Some((stdout_rx, stderr_rx));
+
 
     // Read stdout in a dedicated thread
     thread::spawn(move || {
@@ -85,6 +87,7 @@ fn read_available() -> (Vec<String>, Vec<String>) {
     } else {
         (Vec::new(), Vec::new())
     }
+
 }
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
