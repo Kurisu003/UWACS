@@ -78,6 +78,7 @@ fn test(current_dir: &PathBuf) {
 }
 
 /// Drain all currently available lines from the stored receivers without blocking.
+#[tauri::command]
 fn read_available() -> (Vec<String>, Vec<String>) {
     let guard = OUTPUT_CHANNELS.lock().unwrap();
     if let Some((stdout_rx, stderr_rx)) = guard.as_ref() {
@@ -123,7 +124,7 @@ fn change_filepath(file_path: String){
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![start, change_filepath])
+        .invoke_handler(tauri::generate_handler![start,read_available])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

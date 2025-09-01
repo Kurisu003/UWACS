@@ -14,15 +14,13 @@ function App() {
         set_start_status(await invoke("restart", { path }));
     }
 
+    async function get_stdout() {
+        console.log(await invoke("read_available", {}));
+    }
+
     return (
         <main className="main_page_container">
-            <form
-                className="row"
-                onSubmit={(e) => {
-                    e.preventDefault();
-                    greet();
-                }}
-            >
+            <form className="row">
                 {/* <input
                     id="greet-input"
                     onChange={(e) => setName(e.currentTarget.value)}
@@ -31,6 +29,7 @@ function App() {
                 <h1>PFP Writer</h1>
                 <button onClick={() => start("pfp_writer")}>⏻</button>
                 <button onClick={() => restart("test")}>⟳</button>
+                <button onClick={() => get_stdout()}>⟳</button>
                 <div className="status_panel">
                     <p>HID: {`${start_status == "OK" ? "✅" : "❌"}`}</p>
                     <p>DCS Bios: </p>
