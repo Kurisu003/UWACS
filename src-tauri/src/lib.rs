@@ -3,27 +3,71 @@
 #![allow(unused_parens)]
 #![allow(non_camel_case_types)]
 
-use std::{env, io::{stdout, Read}, os::windows::process::ExitStatusExt, path::PathBuf, process::{Command, ExitStatus, Output, Stdio}, ptr::null, sync::mpsc::Sender, thread};
-use std::sync::mpsc::channel;
+use std::{
+    env,
+    io::{BufRead, BufReader},
+    path::PathBuf,
+    process::{Command, Stdio},
+    sync::mpsc::{channel, Receiver},
+    thread,
+};
 
-use tauri::ipc::Channel;
-
-fn test(current_dir: &PathBuf) {
-    let output = Command::new(current_dir)
+/// Spawn a child process and stream its output through channels.
+///
+/// This function starts the process located at `current_dir` and
+/// returns receivers for both stdout and stderr. The process output
+/// is read line by line on background threads so the caller can
+/// consume the lines without blocking.
+fn test(current_dir: &PathBuf) -> (Receiver<String>, Receiver<String>) {
+    let mut child = Command::new(current_dir)
         .args(["--flag", "value"])
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .spawn()
         .expect("Failed to init process");
 
-    let std_out = match output.stdout {
-        Some(a) => a,
-        None =>   panic!("A"),
-    };
-    // println!("{:?}", std_out.read(buf));
+    let stdout = child.stdout.take().expect("Failed to capture stdout");
+    let stderr = child.stderr.take().expect("Failed to capture stderr");
 
-    //Continously send to sender here
+    let (stdout_tx, stdout_rx) = channel::<String>();
+    let (stderr_tx, stderr_rx) = channel::<String>();
 
+    // Read stdout in a dedicated thread
+    thread::spawn(move || {
+        let reader = BufReader::new(stdout);
+        for line in reader.lines() {
+            match line {
+                Ok(line) => {
+                    if stdout_tx.send(line).is_err() {
+                        break;
+                    }
+                }
+                Err(_) => break,
+            }
+        }
+    });
+
+    // Read stderr in a dedicated thread
+    thread::spawn(move || {
+        let reader = BufReader::new(stderr);
+        for line in reader.lines() {
+            match line {
+                Ok(line) => {
+                    if stderr_tx.send(line).is_err() {
+                        break;
+                    }
+                }
+                Err(_) => break,
+            }
+        }
+    });
+
+    // Keep the child process alive until it exits.
+    thread::spawn(move || {
+        let _ = child.wait();
+    });
+
+    (stdout_rx, stderr_rx)
 }
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
@@ -36,21 +80,19 @@ fn start(program: String) -> String {
     current_dir = current_dir.join(program + ".exe");
 
 
-    let handle = thread::spawn(move || {
-        test(&current_dir)
+    let (stdout_rx, stderr_rx) = test(&current_dir);
 
+    // Example: forward process output to the console.
+    thread::spawn(move || {
+        for line in stdout_rx {
+            println!("OUT: {}", line);
+        }
     });
-
-    // println!("{:?}", handle.join());
-    // if (String::from_utf8_lossy(&handle.join().stderr).starts_with("Error: No HID interfaces with")){
-    //     return "No HID found".to_string();
-    // }
-    // else if (String::from_utf8_lossy(&handle.stderr).starts_with("Error: Failed to open HID path")){
-    //     return "Init file for PFP not found".to_string();
-    // }
-    //     println!("EXT: {}", output.status);
-    //     println!("OUT:\n{}", String::from_utf8_lossy(&output.stdout));
-    //     eprintln!("ERR\n{}", String::from_utf8_lossy(&output.stderr));
+    thread::spawn(move || {
+        for line in stderr_rx {
+            eprintln!("ERR: {}", line);
+        }
+    });
 
     format!("Hello, string")
 }
