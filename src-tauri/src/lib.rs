@@ -3,27 +3,88 @@
 #![allow(unused_parens)]
 #![allow(non_camel_case_types)]
 
-use std::{env, io::{stdout, Read}, os::windows::process::ExitStatusExt, path::PathBuf, process::{Command, ExitStatus, Output, Stdio}, ptr::null, sync::mpsc::Sender, thread};
-use std::sync::mpsc::channel;
+use std::{
+    env,
+    io::{BufRead, BufReader},
+    path::PathBuf,
+    process::{Command, Stdio},
+    sync::{mpsc::{channel, Receiver}, Mutex},
+    thread,
+};
 
-use tauri::ipc::Channel;
+use once_cell::sync::Lazy;
 
+static OUTPUT_CHANNELS: Lazy<Mutex<Option<(Receiver<String>, Receiver<String>)>>> =
+    Lazy::new(|| Mutex::new(None));
+
+/// Spawn a child process and stream its output through channels.
+///
+/// This function starts the process located at `current_dir` and
+/// stores receivers for both stdout and stderr in a global so the
+/// output can be retrieved later without providing any arguments.
 fn test(current_dir: &PathBuf) {
-    let output = Command::new(current_dir)
+    let mut child = Command::new(current_dir)
         .args(["--flag", "value"])
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .spawn()
         .expect("Failed to init process");
 
-    let std_out = match output.stdout {
-        Some(a) => a,
-        None =>   panic!("A"),
-    };
-    // println!("{:?}", std_out.read(buf));
+    let stdout = child.stdout.take().expect("Failed to capture stdout");
+    let stderr = child.stderr.take().expect("Failed to capture stderr");
 
-    //Continously send to sender here
+    let (stdout_tx, stdout_rx) = channel::<String>();
+    let (stderr_tx, stderr_rx) = channel::<String>();
 
+    // Make receivers available to `read_available`.
+    *OUTPUT_CHANNELS.lock().unwrap() = Some((stdout_rx, stderr_rx));
+
+    // Read stdout in a dedicated thread
+    thread::spawn(move || {
+        let reader = BufReader::new(stdout);
+        for line in reader.lines() {
+            match line {
+                Ok(line) => {
+                    if stdout_tx.send(line).is_err() {
+                        break;
+                    }
+                }
+                Err(_) => break,
+            }
+        }
+    });
+
+    // Read stderr in a dedicated thread
+    thread::spawn(move || {
+        let reader = BufReader::new(stderr);
+        for line in reader.lines() {
+            match line {
+                Ok(line) => {
+                    if stderr_tx.send(line).is_err() {
+                        break;
+                    }
+                }
+                Err(_) => break,
+            }
+        }
+    });
+
+    // Keep the child process alive until it exits.
+    thread::spawn(move || {
+        let _ = child.wait();
+    });
+}
+
+/// Drain all currently available lines from the stored receivers without blocking.
+fn read_available() -> (Vec<String>, Vec<String>) {
+    let guard = OUTPUT_CHANNELS.lock().unwrap();
+    if let Some((stdout_rx, stderr_rx)) = guard.as_ref() {
+        let out: Vec<String> = stdout_rx.try_iter().collect();
+        let err: Vec<String> = stderr_rx.try_iter().collect();
+        (out, err)
+    } else {
+        (Vec::new(), Vec::new())
+    }
 }
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
@@ -36,21 +97,16 @@ fn start(program: String) -> String {
     current_dir = current_dir.join(program + ".exe");
 
 
-    let handle = thread::spawn(move || {
-        test(&current_dir)
+    test(&current_dir);
 
-    });
-
-    // println!("{:?}", handle.join());
-    // if (String::from_utf8_lossy(&handle.join().stderr).starts_with("Error: No HID interfaces with")){
-    //     return "No HID found".to_string();
-    // }
-    // else if (String::from_utf8_lossy(&handle.stderr).starts_with("Error: Failed to open HID path")){
-    //     return "Init file for PFP not found".to_string();
-    // }
-    //     println!("EXT: {}", output.status);
-    //     println!("OUT:\n{}", String::from_utf8_lossy(&output.stdout));
-    //     eprintln!("ERR\n{}", String::from_utf8_lossy(&output.stderr));
+    // Example: fetch any lines that are currently available.
+    let (out_lines, err_lines) = read_available();
+    for line in out_lines {
+        println!("OUT: {}", line);
+    }
+    for line in err_lines {
+        eprintln!("ERR: {}", line);
+    }
 
     format!("Hello, string")
 }
