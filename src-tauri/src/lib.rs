@@ -8,17 +8,22 @@ use std::{
     io::{BufRead, BufReader},
     path::PathBuf,
     process::{Command, Stdio},
-    sync::mpsc::{channel, Receiver},
+    sync::{mpsc::{channel, Receiver}, Mutex},
     thread,
 };
+
+use once_cell::sync::Lazy;
+
+static OUTPUT_CHANNELS: Lazy<Mutex<Option<(Receiver<String>, Receiver<String>)>>> =
+    Lazy::new(|| Mutex::new(None));
 
 /// Spawn a child process and stream its output through channels.
 ///
 /// This function starts the process located at `current_dir` and
-/// returns receivers for both stdout and stderr. The process output
-/// is read line by line on background threads so the caller can
-/// consume the lines without blocking.
-fn test(current_dir: &PathBuf) -> (Receiver<String>, Receiver<String>) {
+/// stores receivers for both stdout and stderr in a global so the
+/// output can be retrieved later without providing any arguments.
+fn test(current_dir: &PathBuf) {
+
     let mut child = Command::new(current_dir)
         .args(["--flag", "value"])
         .stdout(Stdio::piped())
@@ -31,6 +36,10 @@ fn test(current_dir: &PathBuf) -> (Receiver<String>, Receiver<String>) {
 
     let (stdout_tx, stdout_rx) = channel::<String>();
     let (stderr_tx, stderr_rx) = channel::<String>();
+
+    // Make receivers available to `read_available`.
+    *OUTPUT_CHANNELS.lock().unwrap() = Some((stdout_rx, stderr_rx));
+
 
     // Read stdout in a dedicated thread
     thread::spawn(move || {
@@ -66,8 +75,19 @@ fn test(current_dir: &PathBuf) -> (Receiver<String>, Receiver<String>) {
     thread::spawn(move || {
         let _ = child.wait();
     });
+}
 
-    (stdout_rx, stderr_rx)
+/// Drain all currently available lines from the stored receivers without blocking.
+fn read_available() -> (Vec<String>, Vec<String>) {
+    let guard = OUTPUT_CHANNELS.lock().unwrap();
+    if let Some((stdout_rx, stderr_rx)) = guard.as_ref() {
+        let out: Vec<String> = stdout_rx.try_iter().collect();
+        let err: Vec<String> = stderr_rx.try_iter().collect();
+        (out, err)
+    } else {
+        (Vec::new(), Vec::new())
+    }
+
 }
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
@@ -80,19 +100,16 @@ fn start(program: String) -> String {
     current_dir = current_dir.join(program + ".exe");
 
 
-    let (stdout_rx, stderr_rx) = test(&current_dir);
+    test(&current_dir);
 
-    // Example: forward process output to the console.
-    thread::spawn(move || {
-        for line in stdout_rx {
-            println!("OUT: {}", line);
-        }
-    });
-    thread::spawn(move || {
-        for line in stderr_rx {
-            eprintln!("ERR: {}", line);
-        }
-    });
+    // Example: fetch any lines that are currently available.
+    let (out_lines, err_lines) = read_available();
+    for line in out_lines {
+        println!("OUT: {}", line);
+    }
+    for line in err_lines {
+        eprintln!("ERR: {}", line);
+    }
 
     format!("Hello, string")
 }
