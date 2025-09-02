@@ -1,3 +1,7 @@
+body{
+    margin: 0px
+}
+
 .logo.vite:hover {
     filter: drop-shadow(0 0 2em #747bff);
 }
@@ -135,4 +139,10 @@ button {
             margin: 0px;
         }
     }
+}
+
+.debug_console{
+    width: 100vw;
+    margin: 0px;
+    background-color: black;
 }

@@ -11,14 +11,16 @@ use std::{
     sync::{mpsc::{channel, Receiver}, Mutex},
     thread,
 };
-
+use sysinfo::{Pid, PidExt, ProcessExt, Signal, System, SystemExt};
 use once_cell::sync::Lazy;
 
-static OUTPUT_CHANNELS: Lazy<Mutex<Option<(Receiver<String>, Receiver<String>)>>> =
-    Lazy::new(|| Mutex::new(None));
+static OUTPUT_CHANNELS: Lazy<Mutex<Option<(Receiver<String>, Receiver<String>)>>> = Lazy::new(|| Mutex::new(None));
+
+pub fn kill_by_name(name: &str) -> bool {
+    // IMPLEMENT HERE
+}
 
 /// Spawn a child process and stream its output through channels.
-///
 /// This function starts the process located at `current_dir` and
 /// stores receivers for both stdout and stderr in a global so the
 /// output can be retrieved later without providing any arguments.
@@ -93,13 +95,22 @@ fn read_available() -> (Vec<String>, Vec<String>) {
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
-fn start(program: String) -> String {
+fn start(program: String){
+    // done for safety to prevent executing/killing
+    // anything that gets sent from the frontend
+    if(program == "pfp_writer"){
+        let program = "pfp_writer"
+    }
+    else{
+        let program = "ufc_writer"
+    }
+
     let mut current_dir: PathBuf = env::current_dir().unwrap();
     current_dir.pop();
     current_dir.push("children");
-
     current_dir = current_dir.join(program + ".exe");
 
+    let _ = kill_by_name(program)
 
     test(&current_dir);
 
@@ -112,7 +123,6 @@ fn start(program: String) -> String {
         eprintln!("ERR: {}", line);
     }
 
-    format!("Hello, string")
 }
 
 #[tauri::command]
