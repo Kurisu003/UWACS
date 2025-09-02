@@ -11,12 +11,11 @@ use std::{
     sync::{mpsc::{channel, Receiver}, Mutex},
     thread,
 };
-use sysinfo::{Pid, PidExt, ProcessExt, Signal, System, SystemExt};
 use once_cell::sync::Lazy;
 
 static OUTPUT_CHANNELS: Lazy<Mutex<Option<(Receiver<String>, Receiver<String>)>>> = Lazy::new(|| Mutex::new(None));
 
-pub fn kill_by_name(name: &str) -> bool {
+pub fn kill_by_name(name: &String){
     // IMPLEMENT HERE
 }
 
@@ -99,18 +98,20 @@ fn start(program: String){
     // done for safety to prevent executing/killing
     // anything that gets sent from the frontend
     if(program == "pfp_writer"){
-        let program = "pfp_writer"
+        let program = "pfp_writer";
     }
     else{
-        let program = "ufc_writer"
+        let program = "ufc_writer";
     }
 
     let mut current_dir: PathBuf = env::current_dir().unwrap();
     current_dir.pop();
     current_dir.push("children");
+
+    let _ = kill_by_name(&program);
+
     current_dir = current_dir.join(program + ".exe");
 
-    let _ = kill_by_name(program)
 
     test(&current_dir);
 
