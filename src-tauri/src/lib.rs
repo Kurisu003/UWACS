@@ -12,18 +12,28 @@ use std::{
     thread,
 };
 use once_cell::sync::Lazy;
+use sysinfo::System;
+
 
 static OUTPUT_CHANNELS: Lazy<Mutex<Option<(Receiver<String>, Receiver<String>)>>> = Lazy::new(|| Mutex::new(None));
 
 pub fn kill_by_name(name: &String){
-    // IMPLEMENT HERE
+    let mut sys = System::new_all();
+    sys.refresh_all();
+
+    for (pid, process) in sys.processes() {
+        if (process.name().to_string_lossy().starts_with(name)){
+            println!("[{pid}] {:?} {:?}", process.name(), process.disk_usage());
+            process.kill();
+        }
+    }
 }
 
 /// Spawn a child process and stream its output through channels.
 /// This function starts the process located at `current_dir` and
 /// stores receivers for both stdout and stderr in a global so the
 /// output can be retrieved later without providing any arguments.
-fn test(current_dir: &PathBuf) {
+fn spawn_child_from_path(current_dir: &PathBuf) {
 
     let mut child = Command::new(current_dir)
         .args(["--flag", "value"])
@@ -97,38 +107,25 @@ fn read_available() -> (Vec<String>, Vec<String>) {
 fn start(program: String){
     // done for safety to prevent executing/killing
     // anything that gets sent from the frontend
+    let mut program_actual = program.clone();
     if(program == "pfp_writer"){
-        let program = "pfp_writer";
+        program_actual = "pfp_writer".to_string();
     }
-    else{
-        let program = "ufc_writer";
+    else if (program == "ufc_writer") {
+        program_actual = "ufc_writer".to_string();
     }
 
+    // get path to program
     let mut current_dir: PathBuf = env::current_dir().unwrap();
     current_dir.pop();
     current_dir.push("children");
 
-    let _ = kill_by_name(&program);
+    // kill old program if running
+    let _ = kill_by_name(&program_actual);
 
-    current_dir = current_dir.join(program + ".exe");
-
-
-    test(&current_dir);
-
-    // Example: fetch any lines that are currently available.
-    let (out_lines, err_lines) = read_available();
-    for line in out_lines {
-        println!("OUT: {}", line);
-    }
-    for line in err_lines {
-        eprintln!("ERR: {}", line);
-    }
-
-}
-
-#[tauri::command]
-fn change_filepath(file_path: String){
-    println!("{:?}", file_path);
+    // start new program
+    current_dir = current_dir.join(program_actual + ".exe");
+    spawn_child_from_path(&current_dir);
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]

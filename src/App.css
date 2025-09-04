@@ -1,4 +1,5 @@
 body {
+  overflow: hidden;
   margin: 0px;
 }
 
@@ -117,8 +118,16 @@ button {
   }
 }
 .main_page_container {
+  height: 80vh;
   display: flex;
-  margin: 5%;
+  margin: 0px;
+  flex-direction: column;
+  background-color: blue;
+}
+.main_page_container .program_wrapper {
+  width: 100vw;
+  display: flex;
+  background-color: rgb(77, 58, 58);
 }
 .main_page_container h1 {
   margin-right: 10px;
@@ -129,6 +138,7 @@ button {
 .main_page_container .status_panel {
   display: flex;
   flex-direction: column;
+  background-color: rgb(78, 102, 133);
   justify-content: space-between;
 }
 .main_page_container .status_panel p {
@@ -137,6 +147,11 @@ button {
 
 .debug_console {
   width: 100vw;
+  height: 20vh;
+  overflow-y: scroll;
   margin: 0px;
   background-color: black;
+}
+.debug_console p {
+  margin: 0px;
 }/*# sourceMappingURL=App.css.map */
