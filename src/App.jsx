@@ -41,12 +41,14 @@ function App() {
                     set_dcs_bios_status(false);
                 }
                 // DCS BIOS TRUE
-                else if (latest_line.startsWith("Module: ")) {
+                else if (latest_line.startsWith("Module")) {
                     set_dcs_bios_status(true);
-                    set_dcs_module("A");
+                    set_dcs_module("To be implemented");
                 }
             }
-            if (!latest_line.startsWith("Module")) {
+            let append_condition = String(out).startsWith("Module:");
+            // console.log(append_condition);
+            if (!append_condition) {
                 set_writer_stdout((pfp_writer_stdout) => [
                     ...pfp_writer_stdout,
                     out,
@@ -66,6 +68,7 @@ function App() {
     return (
         <>
             <div className="main_page_container">
+                <p>Module: {dcs_module}</p>
                 <div className="program_wrapper">
                     <h1>PFP Writer</h1>
                     <button onClick={() => start("pfp_writer")}>⏻</button>

@@ -121,25 +121,27 @@ button {
   height: 80vh;
   display: flex;
   margin: 0px;
+  margin-top: 5%;
+  margin-left: 5%;
   flex-direction: column;
-  background-color: blue;
 }
 .main_page_container .program_wrapper {
   width: 100vw;
   display: flex;
-  background-color: rgb(77, 58, 58);
 }
 .main_page_container h1 {
+  width: 200px;
   margin-right: 10px;
 }
 .main_page_container button {
   margin: 5px;
 }
 .main_page_container .status_panel {
+  width: 300px;
   display: flex;
+  margin-left: 2%;
   flex-direction: column;
-  background-color: rgb(78, 102, 133);
-  justify-content: space-between;
+  justify-content: space-around;
 }
 .main_page_container .status_panel p {
   margin: 0px;
