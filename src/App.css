@@ -147,13 +147,50 @@ button {
   margin: 0px;
 }
 
-.debug_console {
-  width: 100vw;
-  height: 20vh;
-  overflow-y: scroll;
-  margin: 0px;
-  background-color: black;
+.debug_console_container {
+  display: flex;
+  align-items: center;
 }
-.debug_console p {
+.debug_console_container button {
+  width: 12vw;
+  height: 12vw;
+  margin: 1%;
+  padding: 0px;
+  border: 5px solid #1c1c1c;
+  color: orange;
+  font-size: medium;
+  transition: all 0.3s ease-in-out;
+}
+.debug_console_container button:hover {
+  border: 5px solid #1c1c1c;
+  background-color: orange;
+  color: #1c1c1c;
+}
+.debug_console_container .debug_console {
+  width: 88vw;
+  height: 14vh;
+  overflow-y: auto;
+  margin: 0px;
+  margin-left: 1%;
+  background-color: black;
+  scroll-behavior: smooth;
+}
+.debug_console_container .debug_console::-webkit-scrollbar {
+  width: 10px; /* Set scrollbar width */
+}
+.debug_console_container .debug_console::-webkit-scrollbar-track {
+  border-radius: 10px; /* Rounded corners */
+  background: #1c1c1c; /* Red track */
+}
+.debug_console_container .debug_console::-webkit-scrollbar-thumb {
+  border-radius: 10px; /* Rounded corners */
+  background: #555; /* Gray thumb for contrast */
+  -webkit-transition: background 0.3s ease-in-out;
+  transition: background 0.3s ease-in-out; /* Smooth hover transition */
+}
+.debug_console_container .debug_console::-webkit-scrollbar-thumb:hover {
+  background: orange; /* Darker gray on hover */
+}
+.debug_console_container .debug_console p {
   margin: 0px;
 }/*# sourceMappingURL=App.css.map */

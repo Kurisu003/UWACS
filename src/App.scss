@@ -154,13 +154,52 @@ button {
     }
 }
 
-.debug_console{
-    p{
-        margin: 0px
+.debug_console_container{
+    display: flex;
+    align-items: center;
+    button{
+        width: 12vw;
+        height: 12vw;
+        margin: 1%;
+        padding: 0px;
+        border: 5px solid #1c1c1c;
+        color: orange;
+        font-size: medium;
+        transition: all 0.3s ease-in-out;
+        &:hover{
+            border: 5px solid #1c1c1c;
+            background-color: orange;
+            color: #1c1c1c
+        }
     }
-    width: 100vw;
-    height: 20vh;
-    overflow-y: scroll;
-    margin: 0px;
-    background-color: black;
+    .debug_console{
+        width: 88vw;
+        height: 14vh;
+        overflow-y: auto;
+        margin: 0px;
+        margin-left: 1%;
+        background-color: black;
+        scroll-behavior: smooth;
+        &::-webkit-scrollbar {
+            width: 10px; /* Set scrollbar width */
+        }
+
+        &::-webkit-scrollbar-track {
+            border-radius: 10px; /* Rounded corners */
+            background: #1c1c1c; /* Red track */
+        }
+
+        &::-webkit-scrollbar-thumb {
+            border-radius: 10px; /* Rounded corners */
+            background: #555; /* Gray thumb for contrast */
+            transition: background 0.3s ease-in-out; /* Smooth hover transition */
+
+            &:hover {
+            background: orange; /* Darker gray on hover */
+            }
+        }
+        p{
+            margin: 0px
+        }
+    }
 }
