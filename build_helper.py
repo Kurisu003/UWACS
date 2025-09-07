@@ -81,6 +81,18 @@ shutil.copy2(
 )
 
 
+# Move FluidPort exe
+shutil.copy2(
+    r"C:\Users\danie\Documents\GitHub\UWACS\children\FluidPort.exe",
+    r"C:\Users\danie\Documents\GitHub\UWACS\custom_out\children"
+)
+
+# Move Image
+shutil.copy2(
+    r"C:\Users\danie\Documents\GitHub\UWACS\children\AH-64D_MFCD_leaderLine.png",
+    r"C:\Users\danie\Documents\GitHub\UWACS\custom_out\Main"
+)
+
 folder_to_zip = r"C:\Users\danie\Documents\GitHub\UWACS\custom_out"
 output_zip = r"C:\Users\danie\Documents\GitHub\UWACS\main_archive"
 shutil.make_archive(output_zip, 'zip', folder_to_zip)

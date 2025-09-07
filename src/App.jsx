@@ -13,7 +13,8 @@ function App() {
         if (program == "pfp_writer") set_pfp_hid_status("❔");
         else if (program == "ufc_writer") set_ufc_hid_status("❔");
 
-        set_dcs_bios_status("❔");
+        if (program != "overlay") set_dcs_bios_status("❔");
+
         await invoke("start", { program });
     }
 
@@ -97,6 +98,15 @@ function App() {
                         <p>Device connection:{ufc_hid_status}</p>
                         <p>DCS Bios: {dcs_bios_status}</p>
                     </div>
+                </div>
+                <div className="program_wrapper">
+                    <h1>Overlay</h1>
+                    <button onClick={() => start("overlay+")}>+</button>
+                    <button onClick={() => start("overlay-")}>-</button>
+                    {/* <div className="status_panel">
+                        <p>Device connection:{ufc_hid_status}</p>
+                        <p>DCS Bios: {dcs_bios_status}</p>
+                    </div> */}
                 </div>
             </div>
             <div className="debug_console_container">

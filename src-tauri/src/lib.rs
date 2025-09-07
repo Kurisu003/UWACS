@@ -114,6 +114,9 @@ fn start(program: String){
     else if (program == "ufc_writer") {
         program_actual = "ufc_writer".to_string();
     }
+    else if (program.starts_with("overlay")) {
+        program_actual = "FluidPort".to_string();
+    }
 
     // get path to program
     let mut current_dir: PathBuf = env::current_dir().unwrap();
@@ -121,11 +124,15 @@ fn start(program: String){
     current_dir.push("children");
 
     // kill old program if running
-    let _ = kill_by_name(&program_actual);
+    if(program != "overlay+"){
+        let _ = kill_by_name(&program_actual);
+    }
 
     // start new program
-    current_dir = current_dir.join(program_actual + ".exe");
-    spawn_child_from_path(&current_dir);
+    if(program != "overlay-"){
+        current_dir = current_dir.join(program_actual + ".exe");
+        spawn_child_from_path(&current_dir);
+    }
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
