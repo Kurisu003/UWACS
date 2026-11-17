@@ -1,0 +1,185 @@
+{
+ "spots": [
+  {
+   "side": "top",
+   "index": 0,
+   "button": 42
+  },
+  {
+   "side": "top",
+   "index": 1,
+   "button": 41
+  },
+  {
+   "side": "top",
+   "index": 2,
+   "button": 40
+  },
+  {
+   "side": "top",
+   "index": 3,
+   "button": 39
+  },
+  {
+   "side": "top",
+   "index": 4,
+   "button": 38
+  },
+  {
+   "side": "top",
+   "index": 5,
+   "button": 37
+  },
+  {
+   "side": "top",
+   "index": 6,
+   "button": 36
+  },
+  {
+   "side": "top",
+   "index": 7,
+   "button": 35
+  },
+  {
+   "side": "top",
+   "index": 8,
+   "button": 34
+  },
+  {
+   "side": "right",
+   "index": 0,
+   "button": 31
+  },
+  {
+   "side": "right",
+   "index": 1,
+   "button": 30
+  },
+  {
+   "side": "right",
+   "index": 2,
+   "button": 29
+  },
+  {
+   "side": "right",
+   "index": 3,
+   "button": 28
+  },
+  {
+   "side": "right",
+   "index": 4,
+   "button": 27
+  },
+  {
+   "side": "right",
+   "index": 5,
+   "button": 26
+  },
+  {
+   "side": "right",
+   "index": 6,
+   "button": 25
+  },
+  {
+   "side": "right",
+   "index": 7,
+   "button": 24
+  },
+  {
+   "side": "right",
+   "index": 8,
+   "button": 23
+  },
+  {
+   "side": "bottom",
+   "index": 8,
+   "button": 20
+  },
+  {
+   "side": "bottom",
+   "index": 7,
+   "button": 19
+  },
+  {
+   "side": "bottom",
+   "index": 6,
+   "button": 18
+  },
+  {
+   "side": "bottom",
+   "index": 5,
+   "button": 17
+  },
+  {
+   "side": "bottom",
+   "index": 4,
+   "button": 16
+  },
+  {
+   "side": "bottom",
+   "index": 3,
+   "button": 15
+  },
+  {
+   "side": "bottom",
+   "index": 2,
+   "button": 14
+  },
+  {
+   "side": "bottom",
+   "index": 1,
+   "button": 13
+  },
+  {
+   "side": "bottom",
+   "index": 0,
+   "button": 12
+  },
+  {
+   "side": "left",
+   "index": 8,
+   "button": 9
+  },
+  {
+   "side": "left",
+   "index": 7,
+   "button": 8
+  },
+  {
+   "side": "left",
+   "index": 6,
+   "button": 7
+  },
+  {
+   "side": "left",
+   "index": 5,
+   "button": 6
+  },
+  {
+   "side": "left",
+   "index": 4,
+   "button": 5
+  },
+  {
+   "side": "left",
+   "index": 3,
+   "button": 4
+  },
+  {
+   "side": "left",
+   "index": 2,
+   "button": 3
+  },
+  {
+   "side": "left",
+   "index": 1,
+   "button": 2
+  },
+  {
+   "side": "left",
+   "index": 0,
+   "button": 1
+  }
+ ],
+ "extras": []
+}

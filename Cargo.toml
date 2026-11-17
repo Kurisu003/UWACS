@@ -1,0 +1,30 @@
+[package]
+name = "uwacs"
+version = "0.4.0"
+edition = "2021"
+description = "Universal Winwing Accessories Control System"
+license = "MIT"
+
+[dependencies]
+eframe = { version = "0.37", default-features = false, features = ["default_fonts", "glow", "wayland", "x11", "clipboard"] }
+egui = "0.37"
+image = { version = "0.25", default-features = false, features = ["png"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+anyhow = "1"
+phf = { version = "0.12", features = ["macros"] }
+dirs = "6"
+ureq = { version = "3", features = ["json"] }
+zip = { version = "2", default-features = false, features = ["deflate"] }
+socket2 = { version = "0.5", features = ["all"] }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+hidapi = { version = "2", default-features = false, features = ["linux-native"] }
+evdev = "0.13"
+
+[target.'cfg(not(target_os = "linux"))'.dependencies]
+hidapi = "2"
+
+[profile.release]
+opt-level = 3
+lto = "thin"
