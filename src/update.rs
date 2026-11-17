@@ -12,7 +12,7 @@ use std::time::{Duration, Instant};
 
 use crate::log::log;
 
-pub const DEFAULT_REPO: &str = "Kurisu003/uwacs";
+pub const DEFAULT_REPO: &str = "Kurisu003/UWACS";
 pub const ASSET: &str = "uwacs-linux-x86_64";
 
 #[derive(Clone, Debug, PartialEq)]
